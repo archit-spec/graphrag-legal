@@ -7,20 +7,16 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from typing import List, Dict
 
-# Neo4j driver
 driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "tammu123"))
 
-# OpenAI configuration (replace with Gemini API)
 genai.configure(api_key="")
 
-# Function to query Neo4j
 def query_neo4j(query: str, params: Dict = None) -> List[Dict]:
     """Execute a Cypher query and return the results."""
     with driver.session() as session:
         result = session.run(query, params)
         return [record.data() for record in result]
 
-# Retrieve relevant documents
 def retrieve_relevant_documents(query: str, top_k: int = 3) -> List[Dict]:
     """Retrieve relevant documents based on the query."""
     cypher_query = """
@@ -33,7 +29,6 @@ def retrieve_relevant_documents(query: str, top_k: int = 3) -> List[Dict]:
     """
     return query_neo4j(cypher_query, {"query": query, "top_k": top_k})
 
-# Retrieve document sections
 def retrieve_document_sections(case_number: str) -> List[Dict]:
     """Retrieve all sections for a given document."""
     cypher_query = """
@@ -42,7 +37,6 @@ def retrieve_document_sections(case_number: str) -> List[Dict]:
     """
     return query_neo4j(cypher_query, {"case_number": case_number})
 
-# Generate response using Gemini API
 def generate_response(query: str, context: str) -> str:
     """Generate a response using Google's Gemini API."""
     model = genai.GenerativeModel(
@@ -61,7 +55,6 @@ def generate_response(query: str, context: str) -> str:
     response = chat_session.send_message(prompt)
     return response.text.strip()
 
-# Perform Graph RAG to answer the query
 def graph_rag(query: str) -> str:
     """Perform Graph RAG to answer the query."""
     relevant_docs = retrieve_relevant_documents(query)
@@ -82,11 +75,9 @@ def graph_rag(query: str) -> str:
     
     return response
 
-# Visualize Knowledge Graph
 def visualize_kg():
     G = nx.Graph()
 
-    # Example nodes and edges (customize based on your KG)
     G.add_node("Case 1", label="Case")
     G.add_node("Petitioner A", label="Petitioner")
     G.add_node("Respondent B", label="Respondent")
@@ -100,7 +91,6 @@ def visualize_kg():
     plt.title("Knowledge Graph")
     plt.show()
 
-# Streamlit App
 def main():
     st.title("Legal Query Answering with Graph RAG and Gemini API")
     
@@ -113,10 +103,8 @@ def main():
         st.write("### Knowledge Graph Visualization")
         st.pyplot(visualize_kg())
 
-# Run the Streamlit app
 if __name__ == "__main__":
     main()
 
-# Don't forget to close the driver when you're done
 driver.close()
 

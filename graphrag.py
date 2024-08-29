@@ -6,13 +6,10 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from typing import List, Dict
 
-# Neo4j driver
 driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "tammu123"))
 
-# Gemini configuration
 genai.configure(api_key="")
 
-# Load SentenceTransformer model
 model = SentenceTransformer('all-MiniLM-L6-v2')
 
 def query_neo4j(query: str, params: Dict = None) -> List[Dict]:
@@ -83,10 +80,8 @@ def generate_response(query: str, context: str) -> str:
 
 def graph_rag(query: str) -> str:
     """Perform Graph RAG to answer the query."""
-    # Retrieve relevant documents
     relevant_docs = retrieve_relevant_documents(query)
     
-    # Collect context from relevant documents
     context = []
     for doc in relevant_docs:
         sections = retrieve_document_sections(doc['case_number'])
@@ -98,19 +93,15 @@ def graph_rag(query: str) -> str:
             doc_context += f"{section['section_name']}:\n{section['content']}\n\n"
         context.append(doc_context)
     
-    # Combine context
     combined_context = "\n".join(context)
     
-    # Generate response
     response = generate_response(query, combined_context)
     
     return response
 
-# Example usage
 query = "What are the key principles of law laid down in cases related to trade tax?"
 answer = graph_rag(query)
 print(f"Query: {query}")
 print(f"Answer: {answer}")
 
-# Don't forget to close the driver when you're done
 driver.close()
